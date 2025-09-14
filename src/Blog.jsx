@@ -6,14 +6,6 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getPosts } from './api/posts.js'
 
-// const posts = [
-//   {
-//     title: 'Full-Stack React Projects',
-//     contents: "Let's become full-stack developers!",
-//     author: 'Daniel Bugl',
-//   },
-//   { title: 'Hello React!' },
-// ]
 export function Blog() {
   const [author, setAuthor] = useState('')
   const [sortBy, setSortBy] = useState('createdAt')
@@ -28,6 +20,7 @@ export function Blog() {
 
   return (
     <div style={{ padding: 8 }}>
+      <h1>Welcome to My Blog!</h1>
       <CreatePost />
       <br />
       <hr />
