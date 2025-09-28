@@ -13,6 +13,7 @@ export function Login() {
     onSuccess: (data) => {
       setToken(data.token)
       navigate('/')
+      //navigate('/recipebook')
     },
     onError: () => alert('failed to login!'),
   })
@@ -23,6 +24,7 @@ export function Login() {
   return (
     <form onSubmit={handleSubmit}>
       <Link to='/'>Back to main page</Link>
+      {/*<Link to='/recipebook'>Back to recipe book</Link>*/}
       <hr />
       <div>
         <label htmlFor='create-username'>Username: </label>

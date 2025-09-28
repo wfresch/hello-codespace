@@ -18,6 +18,7 @@ export function Signup() {
   return (
     <form onSubmit={handleSubmit}>
       <Link to='/'>Back to main page</Link>
+      {/*<Link to='/recipebook'>Back to recipe book</Link>*/}
       <hr />
       <div>
         <label htmlFor='create-username'>Username: </label>
