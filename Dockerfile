@@ -7,7 +7,13 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-EXPOSE 3000
+# These are making Google Cloud mad
+#EXPOSE 3000
 
 # Start the SSR server
-CMD ["npm", "start"]
+#CMD ["npm", "start"]
+
+# This is older logic that should keep Google Cloud happy
+FROM nginx AS final
+WORKDIR /usr/share/nginx/html
+COPY --from=build /build/dist .
