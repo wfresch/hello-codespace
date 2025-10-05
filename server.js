@@ -8,6 +8,8 @@ import dotenv from 'dotenv'
 dotenv.config()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+//small change to trigger git builds
+
 async function createProdServer() {
   const app = express()
   app.use((await import('compression')).default())
