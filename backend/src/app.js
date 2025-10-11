@@ -4,12 +4,14 @@ import { userRoutes } from './routes/users.js'
 import { recipesRoutes } from './routes/recipes.js'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import { eventRoutes } from './routes/events.js'
 
 const app = express()
 app.use(bodyParser.json())
 app.use(cors())
 postsRoutes(app)
 userRoutes(app)
+eventRoutes(app)
 recipesRoutes(app)
 
 app.get('/', (req, res) => {
