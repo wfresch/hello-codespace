@@ -1,0 +1,4 @@
+{
+  "schema": "https://miniature-yodel-xr44946xpqcv6q-3000.app.github.dev/graphql",
+  "documents": "src/api/graphql/**/*.{js,jsx}"
+}
