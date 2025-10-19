@@ -57,9 +57,11 @@ describe('updating recipes', () => {
   test('should update the specified property', async () => {
     await updateRecipe(testUser._id, createdSampleRecipes[0]._id, {
       imageUrl: 'fakeUrl',
+      description: 'fakeDescription',
     })
     const updatedRecipe = await Recipe.findById(createdSampleRecipes[0]._id)
     expect(updatedRecipe.imageUrl).toEqual('fakeUrl')
+    expect(updatedRecipe.description).toEqual('fakeDescription')
   })
   test('should not update other properties', async () => {
     await updateRecipe(testUser._id, createdSampleRecipes[0]._id, {
@@ -144,6 +146,7 @@ describe('creating recipes', () => {
       title: 'Hello Mongoose!',
       imageUrl: 'fakeUrl',
       ingredients: ['butter', 'flour'],
+      description: 'fakeDescription',
     }
     const createdRecipe = await createRecipe(testUser._id, recipe)
     expect(createdRecipe._id).toBeInstanceOf(mongoose.Types.ObjectId)
@@ -156,6 +159,7 @@ describe('creating recipes', () => {
     const recipe = {
       imageUrl: 'fakeUrl',
       ingredients: ['empty'],
+      description: 'fakeDescription',
     }
     try {
       await createRecipe(testUser._id, recipe)

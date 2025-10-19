@@ -14,20 +14,12 @@ export function Login() {
     variables: { username, password },
     onCompleted: (data) => {
       setToken(data.loginUser)
-      navigate('/')
+      //navigate('/')
+      navigate('/recipebook')
     },
     onError: () => alert('failed to login!'),
   })
 
-  // const loginMutation = useMutation({
-  //   mutationFn: () => login({ username, password }),
-  //   onSuccess: (data) => {
-  //     setToken(data.token)
-  //     navigate('/')
-  //     //navigate('/recipebook')
-  //   },
-  //   onError: () => alert('failed to login!'),
-  // })
   const handleSubmit = (e) => {
     e.preventDefault()
     //loginMutation.mutate()
@@ -35,8 +27,8 @@ export function Login() {
   }
   return (
     <form onSubmit={handleSubmit}>
-      <Link to='/'>Back to main page</Link>
-      {/*<Link to='/recipebook'>Back to recipe book</Link>*/}
+      {/*<Link to='/'>Back to main page</Link>*/}
+      <Link to='/recipebook'>Back to recipe book</Link>
       <hr />
       <div>
         <label htmlFor='create-username'>Username: </label>
