@@ -9,6 +9,7 @@ export const RECIPE_FIELDS = gql`
     description
     updatedAt
     createdAt
+    likes
     author {
       username
     }
