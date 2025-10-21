@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
-// import { useQuery, useMutation } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { RecipeHeader } from '../components/Recipe/RecipeHeader.jsx'
 import { Recipe } from '../components/Recipe/Recipe.jsx'

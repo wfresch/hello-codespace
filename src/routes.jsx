@@ -1,4 +1,4 @@
-import { Blog } from './pages/Blog.jsx'
+//import { Blog } from './pages/Blog.jsx'
 import { Signup } from './pages/Signup.jsx'
 import { Login } from './pages/Login.jsx'
 import { RecipeBook } from './pages/RecipeBook.jsx'
@@ -7,8 +7,9 @@ import {
   dehydrate,
   HydrationBoundary,
 } from '@tanstack/react-query'
-import { useLoaderData } from 'react-router-dom'
-import { getPosts, getPostById } from './api/posts.js'
+import { useLoaderData, Navigate } from 'react-router-dom'
+//import { getPosts, getPostById } from './api/posts.js'
+import { getPostById } from './api/posts.js'
 import { getRecipes, getRecipeById } from './api/recipes.js'
 import { getUserInfo } from './api/users.js'
 import { ViewPost } from './pages/ViewPost.jsx'
@@ -17,35 +18,36 @@ import { ViewRecipe } from './pages/ViewRecipe.jsx'
 export const routes = [
   {
     path: '/',
-    loader: async () => {
-      const queryClient = new QueryClient()
-      const author = ''
-      const sortBy = 'createdAt'
-      const sortOrder = 'descending'
-      const posts = await getPosts({ author, sortBy, sortOrder })
-      await queryClient.prefetchQuery({
-        queryKey: ['posts', { author, sortBy, sortOrder }],
-        queryFn: () => posts,
-      })
-      const uniqueAuthors = posts
-        .map((post) => post.author)
-        .filter((value, index, array) => array.indexOf(value) === index)
-      for (const userId of uniqueAuthors) {
-        await queryClient.prefetchQuery({
-          queryKey: ['users', userId],
-          queryFn: () => getUserInfo(userId),
-        })
-      }
-      return dehydrate(queryClient)
-    },
-    Component() {
-      const dehydratedState = useLoaderData()
-      return (
-        <HydrationBoundary state={dehydratedState}>
-          <Blog />
-        </HydrationBoundary>
-      )
-    },
+    element: <Navigate to='/recipebook' replace />,
+    // loader: async () => {
+    //   const queryClient = new QueryClient()
+    //   const author = ''
+    //   const sortBy = 'createdAt'
+    //   const sortOrder = 'descending'
+    //   const posts = await getPosts({ author, sortBy, sortOrder })
+    //   await queryClient.prefetchQuery({
+    //     queryKey: ['posts', { author, sortBy, sortOrder }],
+    //     queryFn: () => posts,
+    //   })
+    //   const uniqueAuthors = posts
+    //     .map((post) => post.author)
+    //     .filter((value, index, array) => array.indexOf(value) === index)
+    //   for (const userId of uniqueAuthors) {
+    //     await queryClient.prefetchQuery({
+    //       queryKey: ['users', userId],
+    //       queryFn: () => getUserInfo(userId),
+    //     })
+    //   }
+    //   return dehydrate(queryClient)
+    // },
+    // Component() {
+    //   const dehydratedState = useLoaderData()
+    //   return (
+    //     <HydrationBoundary state={dehydratedState}>
+    //       <Blog />
+    //     </HydrationBoundary>
+    //   )
+    // },
   },
   {
     path: '/recipebook',
