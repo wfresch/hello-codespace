@@ -43,7 +43,7 @@ export function RecipeBook() {
       />
       <br />
       <RecipeSorting
-        fields={['createdAt', 'updatedAt']}
+        fields={['createdAt', 'updatedAt', 'likes']}
         value={sortBy}
         onChange={(value) => setSortBy(value)}
         orderValue={sortOrder}

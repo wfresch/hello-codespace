@@ -10,8 +10,10 @@ export function Recipe({
   author,
   description,
   id,
+  likes,
   fullRecipe = false,
 }) {
+  console
   const imageSrc = imageUrl || placeholder
   const imageStyle = fullRecipe
     ? {
@@ -39,6 +41,7 @@ export function Recipe({
       <div>
         <img src={imageSrc} alt={title} style={imageStyle} />
       </div>
+      {!fullRecipe && <div>Likes: {likes}</div>}
       {fullRecipe && <div>{description}</div>}
       {author && (
         <em>
@@ -55,5 +58,6 @@ Recipe.propTypes = {
   author: PropTypes.shape(User.propTypes),
   description: PropTypes.string,
   id: PropTypes.string.isRequired,
+  likes: PropTypes.number,
   fullRecipe: PropTypes.bool,
 }

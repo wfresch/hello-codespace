@@ -9,8 +9,17 @@ import { getRecipeById } from '../api/recipes.js'
 import { getUserInfo } from '../api/users.js'
 import { Helmet } from 'react-helmet-async'
 import { RecipeStats } from '../components/Recipe/RecipeStats.jsx'
+import { useAuth } from '../contexts/AuthContext.jsx'
+import { jwtDecode } from 'jwt-decode'
 
 export function ViewRecipe({ recipeId }) {
+  //const { currentUser } = useAuth()
+  const [token] = useAuth()
+  const { sub } = token ? jwtDecode(token) : {}
+  //console.log('currentUser:', currentUser)
+  //console.log('token:', [token])
+  //console.log('sub:', sub)
+
   const recipeQuery = useQuery({
     queryKey: ['recipe', recipeId],
     queryFn: () => getRecipeById(recipeId),
@@ -69,7 +78,7 @@ export function ViewRecipe({ recipeId }) {
       {recipe ? (
         <div>
           <Recipe {...recipe} fullRecipe id={recipeId} author={userInfo} />
-          <hr /> <RecipeStats recipeId={recipeId} />
+          <hr /> <RecipeStats recipeId={recipeId} userId={sub} token={token} />
         </div>
       ) : (
         `Recipe with id ${recipeId} not found.`

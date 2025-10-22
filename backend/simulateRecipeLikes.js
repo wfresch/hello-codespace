@@ -6,12 +6,10 @@ import { User } from './src/db/models/user.js'
 import { Event } from './src/db/models/event.js'
 import { createUser } from './src/services/users.js'
 import { createRecipe } from './src/services/recipes.js'
-import { trackRecipeEvent } from './src/services/events.js'
-const simulationStart = Date.now() - 1000 * 60 * 60 * 24 * 30
-const simulationEnd = Date.now()
+import { createLike } from './src/services/likes.js'
 const simulatedUsers = 5
 const simulatedRecipes = 10
-const simulatedLikes = 10000
+const simulatedLikes = 30
 async function simulateEvents() {
   const connection = await initDatabase()
   await User.deleteMany({})
@@ -48,13 +46,10 @@ async function simulateEvents() {
       .map(async () => {
         const randomRecipe =
           createdRecipes[Math.floor(Math.random() * simulatedRecipes)]
-        const sessionStart =
-          simulationStart + Math.random() * (simulationEnd - simulationStart)
-        await trackRecipeEvent({
-          recipeId: randomRecipe._id,
-          action: 'like',
-          date: new Date(sessionStart),
-        })
+        const randomUser =
+          createdUsers[Math.floor(Math.random() * simulatedUsers)]
+
+        await createLike(randomUser._id, randomRecipe._id)
       }),
   )
   console.log(`successfully simulated ${createdLikes.length} likes`)

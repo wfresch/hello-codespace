@@ -1,58 +1,61 @@
-import { useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import PropTypes from 'prop-types'
-import { getTotalLikes, postRecipeEvent } from '../../api/events.js'
+import {
+  getLikesByRecipe,
+  createLike,
+  doesUserLikeRecipe,
+} from '../../api/likes.js'
 
-export function RecipeStats({ recipeId }) {
+export function RecipeStats({ recipeId, userId, token }) {
   const queryClient = useQueryClient()
-  const [liked, setLiked] = useState(false)
 
-  const totalLikes = useQuery({
+  // Fetch total likes
+  const { data: totalLikes, isLoading: likesLoading } = useQuery({
     queryKey: ['totalLikes', recipeId],
-    queryFn: () => getTotalLikes(recipeId),
+    queryFn: () => getLikesByRecipe(recipeId),
   })
 
-  const handleLike = async () => {
-    try {
-      await postRecipeEvent({
-        recipeId,
-        action: 'like',
-        date: new Date(),
-      })
-      setLiked(true)
+  // Fetch whether the current user has already liked
+  const { data: userLikeStatus, isLoading: userLikeLoading } = useQuery({
+    queryKey: ['hasLiked', recipeId, userId],
+    queryFn: () => doesUserLikeRecipe(recipeId, userId),
+    enabled: !!userId, // only fetch if user is logged in
+  })
 
+  // Mutation to create a like
+  const likeMutation = useMutation({
+    mutationFn: () => createLike(token, recipeId),
+    onSuccess: () => {
       queryClient.invalidateQueries(['totalLikes', recipeId])
-    } catch (err) {
-      console.error('Error tracking like:', err)
-    }
-  }
+      queryClient.invalidateQueries(['hasLiked', recipeId, userId])
+    },
+  })
 
-  if (totalLikes.isLoading) {
-    return <div>loading stats...</div>
-  }
+  if (likesLoading || userLikeLoading) return <div>loading stats...</div>
+
+  const hasLiked = userLikeStatus?.hasLiked
+  const disableButton = !userId || hasLiked || likeMutation.isPending
 
   return (
-    <div style={{ marginTop: '1em' }}>
-      <b>{totalLikes.data?.likes ?? 0} total likes</b>
+    <div>
+      <b>{totalLikes?.likes ?? 0} total likes</b>
       <br />
       <button
-        onClick={handleLike}
-        disabled={liked}
+        onClick={() => likeMutation.mutate()}
+        disabled={disableButton}
         style={{
-          marginTop: '0.5em',
-          padding: '0.5em 1em',
-          backgroundColor: liked ? '#ccc' : '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: liked ? 'not-allowed' : 'pointer',
+          opacity: disableButton ? 0.5 : 1,
+          cursor: disableButton ? 'not-allowed' : 'pointer',
         }}
       >
-        {liked ? 'Liked 👍' : 'Like'}
+        {!userId ? 'Sign in to Like ❤️' : hasLiked ? 'Liked ❤️' : 'Like 👍'}
       </button>
     </div>
   )
 }
+
 RecipeStats.propTypes = {
   recipeId: PropTypes.string.isRequired,
+  userId: PropTypes.string, // undefined for anonymous users
+  token: PropTypes.string, // needed to call createLike
 }
