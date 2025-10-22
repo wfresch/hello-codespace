@@ -17,6 +17,7 @@ export function RecipeBook() {
     author ? GET_RECIPES_BY_AUTHOR : GET_RECIPES,
     {
       variables: { author, options: { sortBy, sortOrder } },
+      fetchPolicy: 'network-only',
     },
   )
   const recipes =
