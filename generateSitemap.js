@@ -8,6 +8,8 @@ const baseUrl = process.env.FRONTEND_URL
 export async function generateSitemap() {
   const postsRequest = await fetch(`${process.env.VITE_BACKEND_URL}/posts`)
   const posts = await postsRequest.json()
+  const recipesRequest = await fetch(`${process.env.VITE_BACKEND_URL}/recipes`)
+  const recipes = await recipesRequest.json()
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
@@ -25,6 +27,15 @@ ${posts
 <url>
 <loc>${baseUrl}/posts/${post._id}/${slug(post.title)}</loc>
 <lastmod>${post.updatedAt ?? post.createdAt}</lastmod>
+</url>`,
+  )
+  .join('')}
+${recipes
+  .map(
+    (recipe) => `
+<url>
+<loc>${baseUrl}/recipes/${recipe._id}/${slug(recipe.title)}</loc>
+<lastmod>${recipe.updatedAt ?? recipe.createdAt}</lastmod>
 </url>`,
   )
   .join('')}

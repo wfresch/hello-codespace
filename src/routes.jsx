@@ -1,4 +1,4 @@
-import { Blog } from './pages/Blog.jsx'
+//import { Blog } from './pages/Blog.jsx'
 import { Signup } from './pages/Signup.jsx'
 import { Login } from './pages/Login.jsx'
 import { RecipeBook } from './pages/RecipeBook.jsx'
@@ -7,26 +7,62 @@ import {
   dehydrate,
   HydrationBoundary,
 } from '@tanstack/react-query'
-import { useLoaderData } from 'react-router-dom'
-import { getPosts, getPostById } from './api/posts.js'
+import { useLoaderData, Navigate } from 'react-router-dom'
+//import { getPosts, getPostById } from './api/posts.js'
+import { getPostById } from './api/posts.js'
+import { getRecipes, getRecipeById } from './api/recipes.js'
 import { getUserInfo } from './api/users.js'
 import { ViewPost } from './pages/ViewPost.jsx'
+import { ViewRecipe } from './pages/ViewRecipe.jsx'
 
 export const routes = [
   {
     path: '/',
+    element: <Navigate to='/recipebook' replace />,
+    // loader: async () => {
+    //   const queryClient = new QueryClient()
+    //   const author = ''
+    //   const sortBy = 'createdAt'
+    //   const sortOrder = 'descending'
+    //   const posts = await getPosts({ author, sortBy, sortOrder })
+    //   await queryClient.prefetchQuery({
+    //     queryKey: ['posts', { author, sortBy, sortOrder }],
+    //     queryFn: () => posts,
+    //   })
+    //   const uniqueAuthors = posts
+    //     .map((post) => post.author)
+    //     .filter((value, index, array) => array.indexOf(value) === index)
+    //   for (const userId of uniqueAuthors) {
+    //     await queryClient.prefetchQuery({
+    //       queryKey: ['users', userId],
+    //       queryFn: () => getUserInfo(userId),
+    //     })
+    //   }
+    //   return dehydrate(queryClient)
+    // },
+    // Component() {
+    //   const dehydratedState = useLoaderData()
+    //   return (
+    //     <HydrationBoundary state={dehydratedState}>
+    //       <Blog />
+    //     </HydrationBoundary>
+    //   )
+    // },
+  },
+  {
+    path: '/recipebook',
     loader: async () => {
       const queryClient = new QueryClient()
       const author = ''
       const sortBy = 'createdAt'
       const sortOrder = 'descending'
-      const posts = await getPosts({ author, sortBy, sortOrder })
+      const recipes = await getRecipes({ author, sortBy, sortOrder })
       await queryClient.prefetchQuery({
-        queryKey: ['posts', { author, sortBy, sortOrder }],
-        queryFn: () => posts,
+        queryKey: ['recipes', { author, sortBy, sortOrder }],
+        queryFn: () => recipes,
       })
-      const uniqueAuthors = posts
-        .map((post) => post.author)
+      const uniqueAuthors = recipes
+        .map((recipe) => recipe.author)
         .filter((value, index, array) => array.indexOf(value) === index)
       for (const userId of uniqueAuthors) {
         await queryClient.prefetchQuery({
@@ -40,7 +76,7 @@ export const routes = [
       const dehydratedState = useLoaderData()
       return (
         <HydrationBoundary state={dehydratedState}>
-          <Blog />
+          <RecipeBook />
         </HydrationBoundary>
       )
     },
@@ -52,10 +88,6 @@ export const routes = [
   {
     path: '/login',
     element: <Login />,
-  },
-  {
-    path: '/recipebook',
-    element: <RecipeBook />,
   },
   {
     path: '/posts/:postId/:slug?',
@@ -80,6 +112,33 @@ export const routes = [
       return (
         <HydrationBoundary state={dehydratedState}>
           <ViewPost postId={postId} />
+        </HydrationBoundary>
+      )
+    },
+  },
+  {
+    path: '/recipes/:recipeId/:slug?',
+    loader: async ({ params }) => {
+      const recipeId = params.recipeId
+      const queryClient = new QueryClient()
+      const recipe = await getRecipeById(recipeId)
+      await queryClient.prefetchQuery({
+        queryKey: ['recipe', recipeId],
+        queryFn: () => recipe,
+      })
+      if (recipe?.author) {
+        await queryClient.prefetchQuery({
+          queryKey: ['users', recipe.author],
+          queryFn: () => getUserInfo(recipe.author),
+        })
+      }
+      return { dehydratedState: dehydrate(queryClient), recipeId }
+    },
+    Component() {
+      const { dehydratedState, recipeId } = useLoaderData()
+      return (
+        <HydrationBoundary state={dehydratedState}>
+          <ViewRecipe recipeId={recipeId} />
         </HydrationBoundary>
       )
     },

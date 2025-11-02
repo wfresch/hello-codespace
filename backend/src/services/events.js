@@ -9,12 +9,26 @@ export async function trackEvent({
   const event = new Event({ post: postId, action, session, date })
   return await event.save()
 }
+export async function trackRecipeEvent({
+  recipeId,
+  action,
+  session = uuidv4(),
+  date = Date.now(),
+}) {
+  const recipeEvent = new Event({ post: recipeId, action, session, date })
+  return await recipeEvent.save()
+}
+
 export async function getTotalViews(postId) {
   return {
     views: await Event.countDocuments({ post: postId, action: 'startView' }),
   }
 }
-
+export async function getTotalLikes(recipeId) {
+  return {
+    likes: await Event.countDocuments({ post: recipeId, action: 'like' }),
+  }
+}
 export async function getDailyViews(postId) {
   return await Event.aggregate([
     {

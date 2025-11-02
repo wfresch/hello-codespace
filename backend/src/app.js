@@ -5,6 +5,7 @@ import { recipesRoutes } from './routes/recipes.js'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import { eventRoutes } from './routes/events.js'
+import { likesRoutes } from './routes/likes.js'
 import { ApolloServer } from '@apollo/server'
 import { typeDefs, resolvers } from './graphql/index.js'
 import { optionalAuth } from './middleware/jwt.js'
@@ -35,6 +36,7 @@ apolloServer.start().then(() =>
 postsRoutes(app)
 userRoutes(app)
 eventRoutes(app)
+likesRoutes(app)
 recipesRoutes(app)
 
 app.get('/', (req, res) => {
