@@ -7,6 +7,7 @@ import {
   dehydrate,
   HydrationBoundary,
 } from '@tanstack/react-query'
+//import { useLoaderData} from 'react-router-dom'
 import { useLoaderData, Navigate } from 'react-router-dom'
 //import { getPosts, getPostById } from './api/posts.js'
 import { getPostById } from './api/posts.js'

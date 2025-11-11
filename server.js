@@ -2,25 +2,31 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { generateSitemap } from './generateSitemap.js'
-import express from 'express'
+//import express from 'express'
 import dotenv from 'dotenv'
+import compression from 'compression'
+import serveStatic from 'serve-static'
+import { createServer } from 'node:http'
+import { Server as SocketServer } from 'socket.io'
+
+import { app as backendApp } from './backend/src/app.js'
+import { handleSocket } from './backend/src/socket.js'
+import { generateSitemap } from './generateSitemap.js'
+
 dotenv.config()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// change
+async function createServerApp(isProd = false) {
+  const app = backendApp
 
-async function createProdServer() {
-  const app = express()
-  app.use((await import('compression')).default())
-  app.use(
-    (await import('serve-static')).default(
-      path.resolve(__dirname, 'dist/client'),
-      {
-        index: false,
-      },
-    ),
-  )
+  if (isProd) {
+    app.use(compression())
+    app.use(
+      serveStatic(path.resolve(__dirname, 'dist/client'), { index: false }),
+    )
+  }
+
+  // Catch-all for SSR or static routes
   app.use('*', async (req, res, next) => {
     if (req.originalUrl === '/sitemap.xml') {
       const sitemap = await generateSitemap()
@@ -31,72 +37,41 @@ async function createProdServer() {
     }
 
     try {
-      let template = fs.readFileSync(
-        path.resolve(__dirname, 'dist/client/index.html'),
-        'utf-8',
-      )
-      const render = (await import('./dist/server/entry-server.js')).render
+      const templatePath = isProd
+        ? path.resolve(__dirname, 'dist/client/index.html')
+        : path.resolve(__dirname, 'index.html')
+
+      const templateHtml = fs.readFileSync(templatePath, 'utf-8')
+
+      const renderModulePath = isProd
+        ? './dist/server/entry-server.js'
+        : '/src/entry-server.jsx'
+
+      const { render } = isProd
+        ? await import(renderModulePath)
+        : await import(renderModulePath)
+
       const appHtml = await render(req)
-      const html = template.replace(`<!--ssr-outlet-->`, appHtml)
+      const html = templateHtml.replace('<!--ssr-outlet-->', appHtml)
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
     } catch (e) {
       next(e)
     }
   })
-  return app
-}
 
-async function createDevServer() {
-  const app = express()
-  const vite = await (
-    await import('vite')
-  ).createServer({
-    server: { middlewareMode: true },
-    appType: 'custom',
-  })
-  app.use(vite.middlewares)
-  app.use('*', async (req, res, next) => {
-    if (req.originalUrl === '/sitemap.xml') {
-      const sitemap = await generateSitemap()
-      return res
-        .status(200)
-        .set({ 'Content-Type': 'application/xml' })
-        .end(sitemap)
-    }
+  const server = createServer(app)
+  const io = new SocketServer(server, { cors: { origin: '*' } })
+  handleSocket(io)
 
-    try {
-      const templateHtml = fs.readFileSync(
-        path.resolve(__dirname, 'index.html'),
-        'utf-8',
-      )
-      const template = await vite.transformIndexHtml(
-        req.originalUrl,
-        templateHtml,
-      )
-      const { render } = await vite.ssrLoadModule('/src/entry-server.jsx')
-      const appHtml = await render(req)
-      const html = template.replace(`<!--ssr-outlet-->`, appHtml)
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
-    } catch (e) {
-      vite.ssrFixStacktrace(e)
-      next(e)
-    }
-  })
-  return app
-}
-
-if (process.env.NODE_ENV === 'production') {
-  const app = await createProdServer()
-  app.listen(process.env.PORT, () =>
+  const PORT = process.env.PORT || 3000
+  server.listen(PORT, () =>
     console.log(
-      `ssr production server running on http://localhost:${process.env.PORT}`,
-    ),
-  )
-} else {
-  const app = await createDevServer()
-  app.listen(process.env.PORT, () =>
-    console.log(
-      `ssr dev server running on http://localhost:${process.env.PORT}`,
+      `${
+        isProd ? 'SSR production' : 'SSR dev'
+      } + backend + Socket.IO running on http://localhost:${PORT}`,
     ),
   )
 }
+
+const isProd = process.env.NODE_ENV === 'production'
+await createServerApp(isProd)
