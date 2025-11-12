@@ -10,6 +10,9 @@ import { ApolloServer } from '@apollo/server'
 import { typeDefs, resolvers } from './graphql/index.js'
 import { optionalAuth } from './middleware/jwt.js'
 import { expressMiddleware } from '@apollo/server/express4'
+import { createServer } from 'node:http'
+import { Server } from 'socket.io'
+import { handleSocket } from './socket.js'
 
 const apolloServer = new ApolloServer({
   typeDefs,
@@ -43,10 +46,18 @@ app.get('/', (req, res) => {
   res.send('Hello from Express!')
 })
 
-// app.get('/posts', (req, res) => {
-//   res.send('These are your posts!')
+const server = createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  },
+})
+handleSocket(io)
+// io.on('connection', (socket) => {
+//   console.log('user connected:', socket.id)
+//   socket.on('disconnect', () => {
+//     console.log('user disconnected:', socket.id)
+//   })
 // })
-
-//change
-
-export { app }
+export { server as app }
+// export { app }

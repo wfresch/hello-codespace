@@ -14,11 +14,12 @@ import { getRecipes, getRecipeById } from './api/recipes.js'
 import { getUserInfo } from './api/users.js'
 import { ViewPost } from './pages/ViewPost.jsx'
 import { ViewRecipe } from './pages/ViewRecipe.jsx'
+import { Chat } from './pages/Chat.jsx'
 
 export const routes = [
   {
     path: '/',
-    element: <Navigate to='/recipebook' replace />,
+    element: <Navigate to='/chat' replace />,
     // loader: async () => {
     //   const queryClient = new QueryClient()
     //   const author = ''
@@ -88,6 +89,10 @@ export const routes = [
   {
     path: '/login',
     element: <Login />,
+  },
+  {
+    path: 'chat',
+    element: <Chat />,
   },
   {
     path: '/posts/:postId/:slug?',

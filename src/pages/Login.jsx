@@ -14,8 +14,8 @@ export function Login() {
     variables: { username, password },
     onCompleted: (data) => {
       setToken(data.loginUser)
-      //navigate('/')
-      navigate('/recipebook')
+      navigate('/')
+      //navigate('/recipebook')
     },
     onError: () => alert('failed to login!'),
   })
