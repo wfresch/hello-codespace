@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { getUserInfoById } from './services/users.js'
+import slug from 'slug'
 
 export function handleSocket(io) {
   io.use((socket, next) => {
@@ -35,7 +36,6 @@ export function handleSocket(io) {
         message,
       })
     })
-
     socket.on('user.info', async (socketId, callback) => {
       const sockets = await io.in(socketId).fetchSockets()
       if (sockets.length === 0) return callback(null)
@@ -46,6 +46,16 @@ export function handleSocket(io) {
         user: socket.user,
       }
       return callback(userInfo)
+    })
+    socket.on('recipe.new', (recipe) => {
+      console.log(
+        `New recipe from ${socket.id}: ${recipe.title}, url: /recipes/${recipe.id}/${slug(recipe.title)}`,
+      )
+
+      io.emit('recipe.new', {
+        username: socket.user.username,
+        recipe,
+      })
     })
   })
 }

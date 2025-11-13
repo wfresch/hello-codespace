@@ -19,7 +19,7 @@ import { Chat } from './pages/Chat.jsx'
 export const routes = [
   {
     path: '/',
-    element: <Navigate to='/chat' replace />,
+    element: <Navigate to='/recipebook' replace />,
     // loader: async () => {
     //   const queryClient = new QueryClient()
     //   const author = ''

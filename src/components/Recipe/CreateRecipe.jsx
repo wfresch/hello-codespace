@@ -8,21 +8,28 @@ import {
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { Link } from 'react-router-dom'
 import slug from 'slug'
+import { useSocket } from '../../contexts/SocketIOContext.jsx'
 
 export function CreateRecipe() {
   const [title, setTitle] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [description, setDescription] = useState('')
   const [token] = useAuth()
+  const { socket } = useSocket()
   const [createRecipe, { loading, data }] = useGraphQLMutation(CREATE_RECIPE, {
     variables: { title, imageUrl, description },
     context: { headers: { Authorization: `Bearer ${token}` } },
     refetchQueries: [GET_RECIPES, GET_RECIPES_BY_AUTHOR],
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    createRecipe()
+    const response = await createRecipe()
+    const recipe = response.data.createRecipe
+    console.log('Recipe returned from createRecipe:', recipe)
+    if (recipe) {
+      socket.emit('recipe.new', recipe)
+    }
   }
 
   if (!token) return <div>Please log in to create new recipes.</div>

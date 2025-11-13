@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { RecipeHeader } from '../components/Recipe/RecipeHeader.jsx'
 import { Recipe } from '../components/Recipe/Recipe.jsx'
 import { getRecipeById } from '../api/recipes.js'
+import { useEffect } from 'react'
 //import { useEffect, useState } from 'react'
 //import { postTrackEvent } from '../api/events.js'
 import { getUserInfo } from '../api/users.js'
@@ -11,14 +12,26 @@ import { Helmet } from 'react-helmet-async'
 import { RecipeStats } from '../components/Recipe/RecipeStats.jsx'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { jwtDecode } from 'jwt-decode'
+import { useSocket } from '../contexts/SocketIOContext.jsx'
+import toast from 'react-hot-toast'
+//import slug from 'slug'
 
 export function ViewRecipe({ recipeId }) {
   //const { currentUser } = useAuth()
   const [token] = useAuth()
+  const { socket } = useSocket()
   const { sub } = token ? jwtDecode(token) : {}
   //console.log('currentUser:', currentUser)
   //console.log('token:', [token])
   //console.log('sub:', sub)
+
+  useEffect(() => {
+    socket.on('recipe.new', ({ username, recipe }) => {
+      toast(`${username} just added: ${recipe.title}`)
+    })
+
+    return () => socket.off('recipe.new')
+  }, [])
 
   const recipeQuery = useQuery({
     queryKey: ['recipe', recipeId],
