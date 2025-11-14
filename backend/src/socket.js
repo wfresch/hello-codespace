@@ -52,7 +52,7 @@ export function handleSocket(io) {
         `New recipe from ${socket.id}: ${recipe.title}, url: /recipes/${recipe.id}/${slug(recipe.title)}`,
       )
 
-      io.emit('recipe.new', {
+      socket.broadcast.emit('recipe.new', {
         username: socket.user.username,
         recipe,
       })

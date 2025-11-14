@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 const queryClient = new QueryClient()
 import { SocketIOContextProvider } from './contexts/SocketIOContext.jsx'
 import { Toaster } from 'react-hot-toast'
+//import { useNavigate } from 'react-router-dom'
 
 const apolloClient = new ApolloClient({
   uri: import.meta.env.VITE_GRAPHQL_URL,
@@ -15,6 +16,7 @@ const apolloClient = new ApolloClient({
 import { HelmetProvider } from 'react-helmet-async'
 
 export function App({ children }) {
+  //const navigate = useNavigate()
   return (
     <HelmetProvider>
       <ApolloProvider client={apolloClient}>
@@ -22,7 +24,7 @@ export function App({ children }) {
           <AuthContextProvider>
             <SocketIOContextProvider>
               {children}
-              <Toaster position='top-right' reverseOrder={false} />
+              <Toaster position='bottom-right' reverseOrder={false} />
             </SocketIOContextProvider>
           </AuthContextProvider>
         </QueryClientProvider>
